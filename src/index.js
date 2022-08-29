@@ -22,16 +22,16 @@ function onLoadMoreBtn(){
     fetchImages(query, page, perPage)
     .then(({ data }) => {
         renderImgCard(data.hits)
+        smoothScroll()
         simpleLightBox = new SimpleLightbox('.gallery a').refresh()
-        const totalPages = Math.ceil(data.totalHits / perPage)
-
-      if (page > totalPages) {
+      if (page * perPage > data.totalHits) {
         loadMoreBtn.classList.add('is-hidden')
         Notiflix.Notify.failure('Sorry, but there`s no other search results for now.')
       }
     })
     .catch(error => console.log(error))
 }
+
 
 function onSearchForm(e){
     e.preventDefault()
@@ -45,6 +45,7 @@ function onSearchForm(e){
     .then(({ data }) => {
         if (data.totalHits === 0){
             Notiflix.Notify.failure('Sorry, there are no images matching your search query. Please try again')
+            loadMoreBtn.classList.add('is-hidden')
         } else{
         renderImgCard(data.hits)
         simpleLightBox = new SimpleLightbox('.gallery a').refresh()
@@ -57,7 +58,8 @@ function onSearchForm(e){
     .catch(error => console.log(error))
 }
 
-const { height: cardHeight } = document
+function smoothScroll(){
+  const { height: cardHeight } = document
   .querySelector(".gallery")
   .firstElementChild.getBoundingClientRect();
 
@@ -65,6 +67,8 @@ window.scrollBy({
   top: cardHeight * 2,
   behavior: "smooth",
 });
+}
+
 
 function renderImgCard(images) {
     const markup = images
@@ -93,3 +97,4 @@ function renderImgCard(images) {
       .join('');
       gallery.insertAdjacentHTML('beforeend', markup)
   }
+
